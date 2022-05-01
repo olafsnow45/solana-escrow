@@ -351,7 +351,7 @@ impl Processor {
             temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
             escrow_data_pos += 1;
 
-            msg!("Lamports --> {}, temp_lamport --> {}", lamports, temp_lamports);
+            msg!("Lamports --> {}, temp_lamports --> {}", lamports, temp_lamports);
 
             if lamports != temp_lamports {
                 msg!("lamports is not the same !");
@@ -511,7 +511,7 @@ impl Processor {
                 escrow_data_pos += 1;
                 temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
                 escrow_data_pos += 1;
-                msg!("Lamports_y --> {}, temp_lamport --> {}", lamports_y[j], temp_lamports);
+                msg!("Lamports_y --> {}, temp_lamports --> {}", lamports_y[j], temp_lamports);
 
                 if lamports_y[j] != temp_lamports {
                     msg!("lamports_y is not the same !");
@@ -545,220 +545,297 @@ impl Processor {
         program_id: &Pubkey,
     ) -> ProgramResult {
 
-        // let account_info_iter = &mut accounts.iter();
+        let account_info_iter = &mut accounts.iter();
 
-        // let initializer = next_account_info(account_info_iter)?;
-        // msg!("initializer : {}", initializer.key);
+        let initializer = next_account_info(account_info_iter)?;
+        msg!("initializer Pubkey : {}", initializer.key);
 
-        // let taker_account = next_account_info(account_info_iter)?;
-        // if !taker_account.is_signer {
-        //     return Err(ProgramError::MissingRequiredSignature);
-        // }
+        let taker_account = next_account_info(account_info_iter)?;
+        if !taker_account.is_signer {
+            return Err(ProgramError::MissingRequiredSignature);
+        }
+        msg!("Taker Pubkey : {}", taker_account.key);
         
-        // let escrow_account = next_account_info(account_info_iter)?;
-        // msg!("Escrow account OK -> {:?}", escrow_account );
+        let escrow_account = next_account_info(account_info_iter)?;
+        msg!("Escrow account Pubkey : {}", escrow_account.key );
 
-        // let rent = &Rent::from_account_info(next_account_info(account_info_iter)?)?;
+        let rent = &Rent::from_account_info(next_account_info(account_info_iter)?)?;
 
-        // if !rent.is_exempt(escrow_account.lamports(), escrow_account.data_len()) {
-        //     return Err(EscrowError::NotRentExempt.into());
-        // }
+        if !rent.is_exempt(escrow_account.lamports(), escrow_account.data_len()) {
+            msg!("Rent error --------> ???");
+            return Err(EscrowError::NotRentExempt.into());
+        }
+        msg!("Rent OK -------------->");
 
-        // {
-        //     let escrow_data = &escrow_account.try_borrow_data()?;
-        //     let mut escrow_data_pos = 0;
+        let token_program = next_account_info(account_info_iter)?;
+        msg!("token_program : {}", token_program.key);
+        let pda_account = next_account_info(account_info_iter)?;
+        let (pda, _nonce) = Pubkey::find_program_address(&[b"escrow"], program_id);
 
-        //     if escrow_data[escrow_data_pos] == 0 {
-        //         return Err(ProgramError::AccountAlreadyInitialized);
-        //     }
-        //     escrow_data_pos += 1;
+        {
+            let escrow_data = &escrow_account.try_borrow_data()?;
+            let mut escrow_data_pos = 0;
 
-        //     if escrow_data[escrow_data_pos] != amount_x as u8 {
-        //         return Err(EscrowError::InvalidAmount.into());
-        //     }
-        //     escrow_data_pos += 1;
+            if escrow_data[escrow_data_pos] == 0 {
+                msg!("escrow_account data does not exist !!!");
+                return Err(ProgramError::AccountAlreadyInitialized);
+            }
+            escrow_data_pos += 1;
 
-        //     if escrow_data[escrow_data_pos] != amount_y as u8 {
-        //         return Err(EscrowError::InvalidAmount.into());
-        //     }
-        //     escrow_data_pos += 1;
+            if escrow_data[escrow_data_pos] != amount_x as u8 {
+                msg!("amount_x is not the same !");
+                return Err(EscrowError::InvalidAmount.into());
+            }
+            escrow_data_pos += 1;
 
-        //     if escrow_data[escrow_data_pos] != sol_dir as u8 {
-        //         return Err(EscrowError::InvalidAmount.into());
-        //     }
-        //     escrow_data_pos += 1;
+            if escrow_data[escrow_data_pos] != amount_y as u8 {
+                msg!("amount_y is not the same !");
+                return Err(EscrowError::InvalidAmount.into());
+            }
+            escrow_data_pos += 1;
 
-        //     let mut temp_lamports = escrow_data[escrow_data_pos] as u64;
-        //     escrow_data_pos += 1;
-        //     temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
-        //     escrow_data_pos += 1;
-        //     temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
-        //     escrow_data_pos += 1;
-        //     temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
-        //     escrow_data_pos += 1;
-        //     temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
-        //     escrow_data_pos += 1;
-        //     temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
-        //     escrow_data_pos += 1;
-        //     temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
-        //     escrow_data_pos += 1;
-        //     temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
-        //     escrow_data_pos += 1;
+            if escrow_data[escrow_data_pos] != sol_dir as u8 {
+                msg!("sol_dir is not the same !");
+                return Err(EscrowError::InvalidAmount.into());
+            }
+            escrow_data_pos += 1;
 
-        //     if lamports != temp_lamports {
-        //         return Err(EscrowError::InvalidAccount.into());
-        //     }
+            let mut temp_lamports = escrow_data[escrow_data_pos] as u64;
+            escrow_data_pos += 1;
+            temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
+            escrow_data_pos += 1;
+            temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
+            escrow_data_pos += 1;
+            temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
+            escrow_data_pos += 1;
+            temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
+            escrow_data_pos += 1;
+            temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
+            escrow_data_pos += 1;
+            temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
+            escrow_data_pos += 1;
+            temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
+            escrow_data_pos += 1;
 
-        //     let token_program = next_account_info(account_info_iter)?;
-        //     msg!("token_program : {}", token_program.key);
-        //     let pda_account = next_account_info(account_info_iter)?;
-        //     let (pda, _nonce) = Pubkey::find_program_address(&[b"escrow"], program_id);
+            msg!("Lamports --> {}, temp_lamports --> {}", lamports, temp_lamports);
 
-        //     let mut initializer_token_account;
-        //     let mut taker_token_account;
-        //     let mut temp_token_account;
+            if lamports != temp_lamports {
+                msg!("lamports is not the same !");
+                return Err(EscrowError::InvalidAccount.into());
+            }
 
-        //     let mut transfer_taker_to_initializer_ix;
-        //     let mut transfer_temp_to_taker_ix;
-        //     let mut close_escrow_temp_acc_ix;
+            msg!("Lamports OK -------------->");
 
-        //     if initializer.key.as_ref() != array_ref!(escrow_data, escrow_data_pos, 32) {
-        //         return Err(EscrowError::InvalidAccount.into());
-        //     }
-        //     escrow_data_pos += 32;
+            let mut initializer_token_account;
+            let mut taker_token_account;
+            let mut temp_token_account;
 
-        //     if taker_account.key.as_ref() != array_ref!(escrow_data, escrow_data_pos, 32) {
-        //         return Err(EscrowError::InvalidAccount.into());
-        //     }
-        //     escrow_data_pos += 32;
+            let mut transfer_taker_to_initializer_ix;
+            let mut transfer_temp_to_taker_ix;
+            let mut close_escrow_temp_acc_ix;
 
-        //     for i in 0..amount_x {
-        //         initializer_token_account = next_account_info(account_info_iter)?;
-        //         if initializer_token_account.key.as_ref() != array_ref!(escrow_data, escrow_data_pos, 32) {
-        //             return Err(EscrowError::InvalidAccount.into());
-        //         }
-        //         escrow_data_pos += 32;
+            if initializer.key.as_ref() != array_ref!(escrow_data, escrow_data_pos, 32) {
+                msg!("initializer pubkey is not the same !");
+                return Err(EscrowError::InvalidAccount.into());
+            }
+            escrow_data_pos += 32;
+            msg!("Initializer Account OK -------------->");
 
-        //         taker_token_account = next_account_info(account_info_iter)?;
-        //         if taker_token_account.key.as_ref() != array_ref!(escrow_data, escrow_data_pos, 32) {
-        //             return Err(EscrowError::InvalidAccount.into());
-        //         }
-        //         escrow_data_pos += 32;
+            if taker_account.key.as_ref() != array_ref!(escrow_data, escrow_data_pos, 32) {
+                msg!("taker pubkey is not the same !");
+                return Err(EscrowError::InvalidAccount.into());
+            }
+            escrow_data_pos += 32;
+            msg!("Taker Account OK -------------->");
 
-        //         temp_token_account = next_account_info(account_info_iter)?;
-        //         if temp_token_account.key.as_ref() != array_ref!(escrow_data, escrow_data_pos, 32) {
-        //             return Err(EscrowError::InvalidAccount.into());
-        //         }
-        //         escrow_data_pos += 32;
+            for i in 0..amount_x {
+                let i = i as usize;
+
+                initializer_token_account = next_account_info(account_info_iter)?;
+                if initializer_token_account.key.as_ref() != array_ref!(escrow_data, escrow_data_pos, 32) {
+                    msg!("initializer x token account pubkey{} is not the same !", i);
+                    return Err(EscrowError::InvalidAccount.into());
+                }
+                escrow_data_pos += 32;
+                msg!("initializer x token account pubkey{} is okay !", i);
+
+                taker_token_account = next_account_info(account_info_iter)?;
+                if taker_token_account.key.as_ref() != array_ref!(escrow_data, escrow_data_pos, 32) {
+                    msg!("taker x token account pubkey{} is not the same !", i);
+                    return Err(EscrowError::InvalidAccount.into());
+                }
+                escrow_data_pos += 32;
+                msg!("taker x token account pubkey{} is okay !", i);
+
+                temp_token_account = next_account_info(account_info_iter)?;
+                if temp_token_account.key.as_ref() != array_ref!(escrow_data, escrow_data_pos, 32) {
+                    msg!("temp x token account pubkey{} is not the same !", i);
+                    return Err(EscrowError::InvalidAccount.into());
+                }
+                escrow_data_pos += 32;
+                msg!("temp x token account pubkey{} is okay !", i);
+
+                temp_lamports = escrow_data[escrow_data_pos] as u64;
+                escrow_data_pos += 1;
+                temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
+                escrow_data_pos += 1;
+                temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
+                escrow_data_pos += 1;
+                temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
+                escrow_data_pos += 1;
+                temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
+                escrow_data_pos += 1;
+                temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
+                escrow_data_pos += 1;
+                temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
+                escrow_data_pos += 1;
+                temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
+                escrow_data_pos += 1;
+                msg!("Lamports_x --> {}, temp_lamport --> {}", lamports_x[i], temp_lamports);
+
+                if lamports_x[i] != temp_lamports {
+                    msg!("lamports_x is not the same !");
+                    return Err(EscrowError::InvalidAccount.into());
+                }
+                msg!("Lamports_x{} OK -------------->", i);
+
+                transfer_temp_to_taker_ix = spl_token::instruction::transfer(
+                    token_program.key,
+                    temp_token_account.key,
+                    taker_token_account.key,
+                    &pda,
+                    &[&pda],
+                    lamports_x[i],
+                )?;
+                msg!("Calling the token program to exchange tokens ...");
+                invoke_signed(
+                    &transfer_temp_to_taker_ix,
+                    &[
+                        temp_token_account.clone(),
+                        taker_token_account.clone(),
+                        pda_account.clone(),
+                        token_program.clone(),
+                    ],
+                    &[&[&b"escrow"[..], &[_nonce]]],
+                )?;
+
+                close_escrow_temp_acc_ix = spl_token::instruction::close_account(
+                    token_program.key,
+                    temp_token_account.key,
+                    initializer_token_account.key,
+                    &pda,
+                    &[&pda],
+                )?;
+                msg!("Calling the token program to close pda's temp account...");
+                invoke_signed(
+                    &close_escrow_temp_acc_ix,
+                    &[
+                        temp_token_account.clone(),
+                        initializer_token_account.clone(),
+                        pda_account.clone(),
+                        token_program.clone(),
+                    ],
+                    &[&[&b"escrow"[..], &[_nonce]]],
+                )?;
+
+            }
+
+            for j in 0..amount_y {
+                let j = j as usize;
+
+                initializer_token_account = next_account_info(account_info_iter)?;
+                if initializer_token_account.key.as_ref() != array_ref!(escrow_data, escrow_data_pos, 32) {
+                    msg!("initializer y token account pubkey{} is not the same !", j);
+                    return Err(EscrowError::InvalidAccount.into());
+                }
+                escrow_data_pos += 32;
+                msg!("initializer y token account pubkey{} is okay !", j);
+
+                taker_token_account = next_account_info(account_info_iter)?;
+                if taker_token_account.key.as_ref() != array_ref!(escrow_data, escrow_data_pos, 32) {
+                    msg!("taker y token account pubkey{} is not the same !", j);
+                    return Err(EscrowError::InvalidAccount.into());
+                }
+                escrow_data_pos += 32;
+                msg!("taker y token account pubkey{} is okay !", j);
+
+                temp_lamports = escrow_data[escrow_data_pos] as u64;
+                escrow_data_pos += 1;
+                temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
+                escrow_data_pos += 1;
+                temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
+                escrow_data_pos += 1;
+                temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
+                escrow_data_pos += 1;
+                temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
+                escrow_data_pos += 1;
+                temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
+                escrow_data_pos += 1;
+                temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
+                escrow_data_pos += 1;
+                temp_lamports = (temp_lamports << 8) + escrow_data[escrow_data_pos] as u64;
+                escrow_data_pos += 1;
+                msg!("Lamports_y --> {}, temp_lamports --> {}", lamports_y[j], temp_lamports);
+
+                if lamports_y[j] != temp_lamports {
+                    msg!("lamports_y is not the same !");
+                    return Err(EscrowError::InvalidAccount.into());
+                }
+                msg!("Lamports_y{} OK -------------->", j);
                 
-        //         msg!("temp_token_account-ref{} : {}", i, temp_token_account.key);
-        //         transfer_temp_to_taker_ix = spl_token::instruction::transfer(
-        //             token_program.key,
-        //             temp_token_account.key,
-        //             taker_token_account.key,
-        //             &pda,
-        //             &[&pda],
-        //             lamports_x[i],
-        //         )?;
-        //         msg!("Calling the token program to exchange tokens ...");
-        //         invoke_signed(
-        //             &transfer_temp_to_taker_ix,
-        //             &[
-        //                 temp_token_account.clone(),
-        //                 taker_token_account.clone(),
-        //                 pda_account.clone(),
-        //                 token_program.clone(),
-        //             ],
-        //             &[&[&b"escrow"[..], &[_nonce]]],
-        //         )?;
+                transfer_taker_to_initializer_ix = spl_token::instruction::transfer(
+                    token_program.key,
+                    taker_token_account.key,
+                    initializer_token_account.key,
+                    taker_account.key,
+                    &[&taker_account.key],
+                    lamports_y[j]
+                )?;
+                msg!("Calling the token program to transfer tokens to the Initializer token account...");
+                invoke(
+                    &transfer_taker_to_initializer_ix,
+                    &[
+                        taker_token_account.clone(),
+                        initializer_token_account.clone(),
+                        taker_account.clone(),
+                        token_program.clone(),
+                    ],
+                )?;
 
-        //         close_escrow_temp_acc_ix = spl_token::instruction::close_account(
-        //             token_program.key,
-        //             temp_token_account.key,
-        //             initializer_token_account.key,
-        //             &pda,
-        //             &[&pda],
-        //         )?;
-        //         msg!("Calling the token program to close pda's temp account...");
-        //         invoke_signed(
-        //             &close_escrow_temp_acc_ix,
-        //             &[
-        //                 temp_token_account.clone(),
-        //                 initializer_token_account.clone(),
-        //                 pda_account.clone(),
-        //                 token_program.clone(),
-        //             ],
-        //             &[&[&b"escrow"[..], &[_nonce]]],
-        //         )?;
+            }
 
-        //     }
+        }
 
-        //     for j in 0..amount_y {
-        //         initializer_token_account = next_account_info(account_info_iter)?;
-        //         if initializer_token_account.key.as_ref() != array_ref!(escrow_data, escrow_data_pos, 32) {
-        //             return Err(EscrowError::InvalidAccount.into());
-        //         }
-        //         escrow_data_pos += 32;
-
-        //         taker_token_account = next_account_info(account_info_iter)?;
-        //         if taker_token_account.key.as_ref() != array_ref!(escrow_data, escrow_data_pos, 32) {
-        //             return Err(EscrowError::InvalidAccount.into());
-        //         }
-        //         escrow_data_pos += 32;
-
-        //         transfer_taker_to_initializer_ix = spl_token::instruction::transfer(
-        //             token_program.key,
-        //             taker_token_account.key,
-        //             initializer_token_account.key,
-        //             taker_account.key,
-        //             &[&taker_account.key],
-        //             lamports_y[j]
-        //         )?;
-        //         msg!("Calling the token program to transfer tokens to the Initializer token account...");
-        //         invoke(
-        //             &transfer_taker_to_initializer_ix,
-        //             &[
-        //                 taker_token_account.clone(),
-        //                 initializer_token_account.clone(),
-        //                 taker_account.clone(),
-        //                 token_program.clone(),
-        //             ],
-        //         )?;
-
-        //     }
-
-        // }
-
-        // let system_program_account = next_account_info(account_info_iter)?;
+        let system_program_account = next_account_info(account_info_iter)?;
         
-        // if (sol_dir == 1) && (lamports) > 0 {
-        //     **escrow_account.try_borrow_mut_lamports()? -= lamports;
-        //     **taker_account.try_borrow_mut_lamports()? += lamports;
-        // }
+        if (sol_dir == 1) && (lamports) > 0 {
+            **escrow_account.try_borrow_mut_lamports()? -= lamports;
+            **taker_account.try_borrow_mut_lamports()? += lamports;
+        }
 
-        // if (sol_dir == 2) && (lamports) > 0 {
-        //     let sol_ix = system_instruction::transfer(
-        //         taker_account.key,
-        //         escrow_account.key,
-        //         lamports,
-        //     );
-        //     invoke(
-        //         &sol_ix,
-        //         &[
-        //             taker_account.clone(),
-        //             escrow_account.clone(),
-        //             system_program_account.clone(),
-        //         ],
-        //     )?;
-        // }
+        if (sol_dir == 2) && (lamports) > 0 {
+            let sol_ix = system_instruction::transfer(
+                taker_account.key,
+                escrow_account.key,
+                lamports,
+            );
+            invoke(
+                &sol_ix,
+                &[
+                    taker_account.clone(),
+                    escrow_account.clone(),
+                    system_program_account.clone(),
+                ],
+            )?;
+        }
 
-        // msg!("Closing the escrow account...");
-        // **initializer.try_borrow_mut_lamports()? = initializer
-        //     .lamports()
-        //     .checked_add(escrow_account.lamports())
-        //     .ok_or(EscrowError::AmountOverflow)?;
-        // **escrow_account.try_borrow_mut_lamports()? = 0;
-        // *escrow_account.try_borrow_mut_data()? = &mut [];
+        msg!("Closing the escrow account...");
+        **initializer.try_borrow_mut_lamports()? = initializer
+            .lamports()
+            .checked_add(escrow_account.lamports())
+            .ok_or(EscrowError::AmountOverflow)?;
+        **escrow_account.try_borrow_mut_lamports()? = 0;
+        *escrow_account.try_borrow_mut_data()? = &mut [];
 
         Ok(())
     }

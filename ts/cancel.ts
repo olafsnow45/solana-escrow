@@ -86,7 +86,7 @@ const cancel = async () => {
         { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
         { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
         { pubkey: PDA[0], isSigner: false, isWritable: false },
-
+        //--- a -> b --- NFT
         { pubkey: aliceTokenAccountPubkey[0], isSigner: false, isWritable: true },
         { pubkey: bobTokenAccountPubkey[0], isSigner: false, isWritable: true },
         { pubkey: tempTokenAccountPubkey[0], isSigner: false, isWritable: true },
@@ -96,15 +96,38 @@ const cancel = async () => {
         { pubkey: aliceTokenAccountPubkey[2], isSigner: false, isWritable: true },
         { pubkey: bobTokenAccountPubkey[2], isSigner: false, isWritable: true },
         { pubkey: tempTokenAccountPubkey[2], isSigner: false, isWritable: true },
+        //--- a -> b --- FT
+        { pubkey: aliceTokenAccountPubkey[5], isSigner: false, isWritable: true },
+        { pubkey: bobTokenAccountPubkey[5], isSigner: false, isWritable: true },
+        { pubkey: tempTokenAccountPubkey[5], isSigner: false, isWritable: true },
+
+        //--- b -> a --- NFT
+        { pubkey: aliceTokenAccountPubkey[3], isSigner: false, isWritable: true },
+        { pubkey: bobTokenAccountPubkey[3], isSigner: false, isWritable: true },
+        { pubkey: aliceTokenAccountPubkey[4], isSigner: false, isWritable: true },
+        { pubkey: bobTokenAccountPubkey[4], isSigner: false, isWritable: true },
+        //--- b -> a --- FT
+        { pubkey: aliceTokenAccountPubkey[6], isSigner: false, isWritable: true },
+        { pubkey: bobTokenAccountPubkey[6], isSigner: false, isWritable: true },      
       ],
       data: Buffer.from(
         Uint8Array.of(
-          2, 
-          ...new BN(aliceXAmount).toArray("le", 1), 
-          ...new BN(bobYAmount).toArray("le", 1),
-          1,
+          2,  // escrow cancel
+
+          1,  // sol_dir : alice -> bob
+          ...new BN(2000000000).toArray("le", 8),     //sol_lamports
+
+          ...new BN(4).toArray("le", 1),   //alice token amount
+          ...new BN(1).toArray("le", 8),
+          ...new BN(1).toArray("le", 8),
+          ...new BN(1).toArray("le", 8),
           ...new BN(2000000000).toArray("le", 8),
-          )
+
+          ...new BN(3).toArray("le", 1),     //bob token amount
+          ...new BN(1).toArray("le", 8),
+          ...new BN(1).toArray("le", 8),
+          ...new BN(3000000000).toArray("le", 8),
+        )
     ),
   });
 
