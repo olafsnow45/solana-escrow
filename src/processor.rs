@@ -182,9 +182,9 @@ impl Processor {
                 invoke(
                     &transfer_initializer_to_temp_ix,
                     &[
-                        temp_token_account.clone(),
-                        initializer_token_account.clone(),
                         initializer.clone(),
+                        initializer_token_account.clone(),
+                        temp_token_account.clone(),
                         token_program.clone(),
                     ],
                 )?;
@@ -202,9 +202,9 @@ impl Processor {
                 invoke(
                     &owner_change_ix,
                     &[
+                        token_program.clone(),
                         temp_token_account.clone(),
                         escrow_account.clone(),
-                        token_program.clone(),
                     ],
                 )?;
 
@@ -444,10 +444,10 @@ impl Processor {
                 invoke_signed(
                     &transfer_temp_to_initializer_ix,
                     &[
-                        temp_token_account.clone(),
-                        initializer_token_account.clone(),
                         pda_account.clone(),
                         token_program.clone(),
+                        temp_token_account.clone(),
+                        initializer_token_account.clone(),
                     ],
                     &[&[&b"escrow"[..], &[_nonce]]],
                 )?;
@@ -463,10 +463,10 @@ impl Processor {
                 invoke_signed(
                     &close_escrow_temp_acc_ix,
                     &[
-                        temp_token_account.clone(),
-                        initializer_token_account.clone(),
                         pda_account.clone(),
                         token_program.clone(),
+                        temp_token_account.clone(),
+                        initializer_token_account.clone(),
                     ],
                     &[&[&b"escrow"[..], &[_nonce]]],
                 )?;
@@ -642,7 +642,7 @@ impl Processor {
             msg!("Initializer Account OK -------------->");
 
             if taker_account.key.as_ref() != array_ref!(escrow_data, escrow_data_pos, 32) {
-                msg!("taker pubkey is not the same !");
+                msg!("taker pubkey is not the same ! : {:?}", array_ref!(escrow_data, escrow_data_pos, 32));
                 return Err(EscrowError::InvalidAccount.into());
             }
             escrow_data_pos += 32;
@@ -711,10 +711,10 @@ impl Processor {
                 invoke_signed(
                     &transfer_temp_to_taker_ix,
                     &[
-                        temp_token_account.clone(),
-                        taker_token_account.clone(),
                         pda_account.clone(),
                         token_program.clone(),
+                        temp_token_account.clone(),
+                        taker_token_account.clone(),
                     ],
                     &[&[&b"escrow"[..], &[_nonce]]],
                 )?;
@@ -730,10 +730,10 @@ impl Processor {
                 invoke_signed(
                     &close_escrow_temp_acc_ix,
                     &[
-                        temp_token_account.clone(),
-                        initializer_token_account.clone(),
                         pda_account.clone(),
                         token_program.clone(),
+                        temp_token_account.clone(),
+                        initializer_token_account.clone(),
                     ],
                     &[&[&b"escrow"[..], &[_nonce]]],
                 )?;
@@ -795,9 +795,9 @@ impl Processor {
                 invoke(
                     &transfer_taker_to_initializer_ix,
                     &[
+                        taker_account.clone(),
                         taker_token_account.clone(),
                         initializer_token_account.clone(),
-                        taker_account.clone(),
                         token_program.clone(),
                     ],
                 )?;

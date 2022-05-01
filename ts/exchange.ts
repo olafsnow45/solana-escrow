@@ -76,8 +76,8 @@ const alice = async () => {
     programId: escrowProgramId,
     keys: [
       { pubkey: aliceKeypair.publicKey, isSigner: false, isWritable: true },
-      { pubkey: bobKeypair.publicKey, isSigner: false, isWritable: true },
-      { pubkey: escrowKeypair.publicKey, isSigner: true, isWritable: true },
+      { pubkey: bobKeypair.publicKey, isSigner: true, isWritable: true },
+      { pubkey: escrowKeypair.publicKey, isSigner: false, isWritable: true },
       { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
       { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
       { pubkey: PDA[0], isSigner: false, isWritable: false },
@@ -132,6 +132,9 @@ const alice = async () => {
     exchangeEscrowIx
   );
 
+  console.log("alicePubkey : ", aliceKeypair.publicKey.toBase58());
+  console.log("bobPubkey : ", bobKeypair.publicKey.toBase58());
+
   console.log(tx);
   console.log("Sending Exchange's transaction...");
   await connection.sendTransaction(
@@ -139,8 +142,6 @@ const alice = async () => {
     [bobKeypair, escrowKeypair ],
     { skipPreflight: false, preflightCommitment: "confirmed" }
   );
-  console.log("alicePubkey : ", aliceKeypair.publicKey.toBytes());
-  console.log("bobPubkey : ", bobKeypair.publicKey.toBytes());
   console.log("Exchange completed!");
 
 };

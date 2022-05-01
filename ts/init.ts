@@ -139,6 +139,9 @@ const alice = async () => {
     initEscrowIx
   );
 
+  console.log("alicePubkey : ", aliceKeypair.publicKey.toBase58());
+  console.log("bobPubkey : ", bobKeypair.publicKey.toBase58());
+
   console.log(tx);
   console.log("Sending Alice's transaction...");
   await connection.sendTransaction(
@@ -147,8 +150,6 @@ const alice = async () => {
     { skipPreflight: false, preflightCommitment: "confirmed" }
   );
   
-  console.log("alicePubkey : ", aliceKeypair.publicKey.toBytes());
-  console.log("bobPubkey : ", bobKeypair.publicKey.toBytes());
   console.log("init completed!");
 
 };
