@@ -475,7 +475,7 @@ impl Processor {
 
             //---- check taker account & lamports
 
-            let escrow_mut_data = &mut escrow_account.try_borrow_mut_data()?;
+            // let escrow_mut_data = &mut escrow_account.try_borrow_mut_data()?;
             for j in 0..amount_y {
                 let j = j as usize;
 
@@ -519,7 +519,7 @@ impl Processor {
                 }
                 msg!("Lamports_y{} OK -------------->", j);
             }
-            msg!("Escrow Mut Data -> {:?}", escrow_mut_data);
+            // msg!("Escrow Mut Data -> {:?}", escrow_mut_data);
         }
 
         msg!("Closing the escrow account...");

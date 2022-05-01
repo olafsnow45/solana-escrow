@@ -49,21 +49,27 @@ const cancel = async () => {
     getPublicKey("alice_x2"),
     getPublicKey("alice_x3"),
     getPublicKey("alice_y1"),
-    getPublicKey("alice_y2")
+    getPublicKey("alice_y2"),
+    getPublicKey("alice_token1"),
+    getPublicKey("alice_token2")
   ];
   const bobTokenAccountPubkey = [
     getPublicKey("bob_x1"),
     getPublicKey("bob_x2"),
     getPublicKey("bob_x3"),
     getPublicKey("bob_y1"),
-    getPublicKey("bob_y2")
+    getPublicKey("bob_y2"),
+    getPublicKey("bob_token1"),
+    getPublicKey("bob_token2")
   ];
   const tempTokenAccountPubkey = [
     getPublicKey("escrow_x1"),
     getPublicKey("escrow_x2"),
     getPublicKey("escrow_x3"),
     getPublicKey("escrow_y1"),
-    getPublicKey("escrow_y2")
+    getPublicKey("escrow_y2"),
+    getPublicKey("escrow_token1"),
+    getPublicKey("escrow_token2")
   ];
 
   const PDA = await PublicKey.findProgramAddress(
